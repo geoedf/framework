@@ -1,12 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-""" Parent class for all connector plugins; implements the dependency chain for binding 
-    all attributes needed to run the plugins
+""" Parent class for all connector plugins; binds attributes to their values
+    allows for bindings to be reset and updated to support sets of binding values
+    also binds any variables in the attribute values, given binding values for the variables
 """
 
 import re
-from functools import reduce
+from os import listdir
+from os.path import isfile, join
 
 class GeoEDFConnectorPlugin:
 
@@ -24,7 +26,14 @@ class GeoEDFConnectorPlugin:
             self.orig_vals[key] = getattr(self,key)
             self.add_dependencies(key,getattr(self,key))
 
-    def find_dependent_params(self,value):
+        # set this plugin's type based on the name
+        self.set_plugin_type()
+
+    # set this plugin's type 
+    def set_plugin_type(self,plugin_type):
+        self.plugin_type = plugin_type
+
+    def find_vars(self,value):
         if value is not None and isinstance(value,str):
             return re.findall('\%\{(.+?)\}',value)
         else:
@@ -36,16 +45,16 @@ class GeoEDFConnectorPlugin:
         for key in self.dependencies:
             setattr(self,key,self.orig_vals[key])
         
-    # parse the value, adding any parameter names to key's dependencies
+    # parse the value, adding any variable names to key's dependencies
     def add_dependencies(self,key,value):
 
         # find parameters mentioned in the value
-        key_dependencies = self.find_dependent_params(value)
+        key_dependencies = self.find_vars(value)
 
         if len(key_dependencies) > 0:
 
             # set dependencies
-            self.dependencies[key] = self.find_dependent_params(value)
+            self.dependencies[key] = key_dependencies
 
             # set reverse dependencies
             for dep_key in key_dependencies:
@@ -54,16 +63,46 @@ class GeoEDFConnectorPlugin:
                 else:
                     self.rev_dependencies[dep_key] = [key]
 
-    # wrapper for setattr that also updates dependencies
-    # assume that value does not contain any variables & is fully instantiated
-    def set_param(self,key,value):
-        setattr(self,key,value)
-        if key in self.rev_dependencies:
-            for dep_key in self.rev_dependencies[key]:
-                # first (partially) instantiate the dependent variable
-                dep_val = getattr(self,dep_key)
-                needle = '%{{{}}}'.format(key)
-                setattr(self,dep_key,dep_val.replace(needle,value))
+    # list of variables mentioned in plugin's attributes
+    def plugin_dependencies(self):
+        return list(self.rev_dependencies.keys())
+
+    # instantiate a set of variable bindings, updating values of any dependent attributes
+    def bind_vars(self,var_bind_dict):
+        # loop over the variables, only considering dependencies for this plugin
+        for var in var_bind_dict.keys():
+            if var in self.rev_dependencies:
+            value = var_bind_dict[var]
+            # loop over every attribute that depends on this variable
+            for attr_key in self.rev_dependencies[var]:
+                # (partially) instantiate the dependent attribute
+                dep_val = getattr(self,attr_key)
+                needle = '%{{{}}}'.format(var)
+                setattr(self,attr_key,dep_val.replace(needle,value))
+        
+    # sets the target path for this plugin's outputs
+    def set_output_path(self,path):
+        self.target_path = path
+
+    # collects the outputs of an input plugin so they can be returned to the
+    # workflow engine and used in instantiating the next stage
+    # a text filepath argument is provided and this file will be filled with
+    # the paths of the files acquired by the plugin
+    def collect_outputs(self,output_filename):
+        # make sure this is an input plugin
+        if self.plugin_type == 'Input':
+            with open(output_filename,'w') as output_file:
+                for f in listdir(self.target_path):
+                    if isfile(join(self.target_path,f)):
+                        output_file.write(join(self.target_path,f))
+        else:
+            raise GeoEDFError('collect_outputs needs to be called on an Input plugin')
+                        
+                        
+                
+            
+            
+            
 
             
              
