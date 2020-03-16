@@ -13,6 +13,7 @@ setup(name='geoedfframework',
       license='MIT',
       python_requires='~=3.3',
       packages=find_packages(),
+      scripts=['bin/run-workflow-stage'],
       install_requires=['pyyaml','regex'],
       include_package_data=True,
       zip_safe=False)

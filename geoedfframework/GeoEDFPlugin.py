@@ -9,7 +9,7 @@ import re
 from os import listdir
 from os.path import isfile, join
 
-from .utils import GeoEDFUtils
+from .utils.GeoEDFError import GeoEDFError
 
 class GeoEDFPlugin:
 
@@ -49,7 +49,7 @@ class GeoEDFPlugin:
 
     # find all prior stages referenced in value
     def find_stage_refs(self,value):
-        if value is not None and is instance(value,str):
+        if value is not None and isinstance(value,str):
             return re.findall('\$([0-9]+?)',value)
         else:
             return []
