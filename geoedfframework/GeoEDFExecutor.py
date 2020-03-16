@@ -12,9 +12,10 @@ class GeoEDFExecutor():
 
     # workflow_fname is the workflow filename
     # workflow_stage is the workflow stage that needs to be executed (uses : separator for plugins in connectors)
-    # target_path is provided as input and is where files produced by this plugin need to be saved
-    # target_path is created beforehand by the first job in the workflow
-    # output_filename is the name of the text file that stores the outputs of this stage for this binding
+    # target_path is provided as input and is where files produced by input and processor plugins are to be saved
+    # target_path is created beforehand for each stage of the workflow by the first job in the workflow
+    # output_filename is the name of the text file that stores the outputs of a filter plugin for this binding
+    # each stage uses either one of target_path or output_filename
     # var_bindings is optional and provides bindings for one or more variables; encoded as a JSON string
     # stage_bindings is also optional and provides bindings for any stage references (file outputs of prior stages)
     # assume exactly one set of bindings is provided as input
@@ -54,8 +55,10 @@ class GeoEDFExecutor():
         self.plugin_type = plugin_type
         self.plugin_instance_def = plugin_instance_def
 
-        self.output_path = output_path
-        self.output_filename = output_filename
+        if plugin_type == 'Filter':
+            self.output_filename = output_filename
+        else: # input or processor
+            self.output_path = output_path
 
     # creates an instance of a connector plugin class
     # uses the plugin type and instance def determined during init
@@ -110,9 +113,11 @@ class GeoEDFExecutor():
         else:
             plugin_obj = self.build_connector_plugin()
 
-        # set the plugin type, output path & output filename
-        plugin_obj.set_output_path(self.output_path)
-        plugin_obj.set_output_filename(self.output_filename)
+        # set the plugin type, output path & output filename based on plugin type
+        if self.plugin_type == 'Filter':
+            plugin_obj.set_output_filename(self.output_filename)
+        else:    
+            plugin_obj.set_output_path(self.output_path)
         plugin_obj.set_plugin_type(self.plugin_type)
 
         # some simple validation to ensure bindings are available for every variable and stage referenced
@@ -151,6 +156,7 @@ class GeoEDFExecutor():
         except:
             raise GeoEDFError('Error executing plugin')
 
-        # collect results; these are saved to standard output file
-        # which is returned to workflow engine
-        plugin_obj.collect_outputs()
+        # collect results in the case of Filter plugins; 
+        # saved to the output file and returned to workflow engine
+        if self.plugin_type == 'Filter':
+            plugin_obj.save_filter_outputs()

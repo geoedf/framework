@@ -137,20 +137,13 @@ class GeoEDFPlugin:
     def set_output_path(self,path):
         self.target_path = path
                         
-    # collects the outputs of the plugin so they can be returned to the
-    # workflow engine and used in instantiating the next stage
-    def collect_outputs(self):
-        # if this is a processor or input plugin, look in the output dir
-        # in case of filter plugins, use the "values" attribute
-        if self.plugin_type == 'Filter':
-            with open(self.output_filename,'w') as output_file:
-                for val in self.values:
-                    output_file.write('%s\n' % val)
-        else:
-            with open(self.output_filename,'w') as output_file:
-                for f in listdir(self.target_path):
-                    if isfile(join(self.target_path,f)):
-                        output_file.write(join(self.target_path,f))
+    # saves the outputs of a filter plugin to a text file to return to the
+    # workflow engine
+    # assume only invoked on filter plugins
+    def save_filter_outputs(self):
+        with open(self.output_filename,'w') as output_file:
+            for val in self.values:
+                output_file.write('%s\n' % val)
 
     # determine the number of "dir" modifiers in a value containing a stage reference 
     # assumes validation has already occurred on the value string
