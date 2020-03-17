@@ -1,0 +1,17 @@
+BootStrap: docker
+From: continuumio/miniconda3
+
+%files
+
+    framework/ /tmp
+
+%environment
+    export PYTHONPATH=/usr/local/lib/python3.7/dist-packages:$PYTHONPATH
+
+%post
+
+    apt-get update && apt-get -y install python3-pip
+
+    cd /tmp/framework && pip3 install .
+
+    chmod -R go+rX /usr/local/lib/python3.7/dist-packages
