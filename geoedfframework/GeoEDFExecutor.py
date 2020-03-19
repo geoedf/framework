@@ -12,15 +12,13 @@ class GeoEDFExecutor():
 
     # workflow_fname is the workflow filename
     # workflow_stage is the workflow stage that needs to be executed (uses : separator for plugins in connectors)
-    # target_path is provided as input and is where files produced by input and processor plugins are to be saved
-    # target_path is created beforehand for each stage of the workflow by the first job in the workflow
-    # output_filename is the name of the text file that stores the outputs of a filter plugin for this binding
-    # this is optional and only provided for filter plugins
-    # each stage uses either one of target_path or output_filename
+    # target_path is dual-purpose
+    # in case of processors or input plugins, it is the dir where the output is saved
+    # in the case of filter plugins, it is a file where the filter values are written to
     # var_bindings is optional and provides bindings for one or more variables; encoded as a JSON string
     # stage_bindings is also optional and provides bindings for any stage references (file outputs of prior stages)
     # assume exactly one set of bindings is provided as input
-    def __init__(self,workflow_fname,workflow_stage,target_path,output_filename=None,var_bindings=None,stage_bindings=None):
+    def __init__(self,workflow_fname,workflow_stage,target_path,var_bindings=None,stage_bindings=None):
 
         if var_bindings is not None:
             self.var_bindings = json.loads(var_bindings)
@@ -57,12 +55,9 @@ class GeoEDFExecutor():
         self.plugin_instance_def = plugin_instance_def
 
         if plugin_type == 'Filter':
-            if output_filaname is not None:
-                self.output_filename = output_filename
-            else:
-                raise GeoEDFError("An output filename must be provided for Filter plugins")
+            self.output_filename = target_path
         else: # input or processor
-            self.output_path = output_path
+            self.output_path = target_path
 
     # creates an instance of a connector plugin class
     # uses the plugin type and instance def determined during init

@@ -4,6 +4,7 @@ From: continuumio/miniconda3
 %files
 
     framework/ /tmp
+    run-workflow-stage.sh /usr/local/bin/
 
 %environment
     export PYTHONPATH=/usr/local/lib/python3.7/dist-packages:$PYTHONPATH
@@ -15,3 +16,5 @@ From: continuumio/miniconda3
     cd /tmp/framework && pip3 install .
 
     chmod -R go+rX /usr/local/lib/python3.7/dist-packages
+
+    chmod a+x /usr/local/bin/run-workflow-stage.sh

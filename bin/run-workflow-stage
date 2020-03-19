@@ -1,4 +1,4 @@
-#! /usr/bin/env python3
+#!/usr/bin/env python3
 
 # this script is the primary job execution script used by the workflow engine
 # arguments to the script include the workflow filename, workflow stage to be executed,
@@ -14,6 +14,7 @@ arg_count = len(sys.argv)
 
 # make sure the required arguments have been provided
 if arg_count < 4:
+    raise Exception("Incorrect number of arguments provided")
 
 workflow_fname = str(sys.argv[1])
 workflow_stage = str(sys.argv[2])
