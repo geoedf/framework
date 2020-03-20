@@ -141,7 +141,7 @@ class GeoEDFPlugin:
     # workflow engine
     # assume only invoked on filter plugins
     def save_filter_outputs(self):
-        with open(self.output_filename,'w') as output_file:
+        with open(self.target_path,'w') as output_file:
             for val in self.values:
                 output_file.write('%s\n' % val)
 

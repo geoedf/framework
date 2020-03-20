@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 # this script is the primary job execution script used by the workflow engine
 # arguments to the script include the workflow filename, workflow stage to be executed,
 # a set of variable bindings encoded as a JSON string, a set of stage reference bindings
@@ -8,36 +6,33 @@
 
 from geoedfframework.GeoEDFExecutor import GeoEDFExecutor
 
+import sys
+
 arg_count = len(sys.argv)
 
 # extract command line arguments
 
 # make sure the required arguments have been provided
-if arg_count < 4:
+if arg_count < 5:
     raise Exception("Incorrect number of arguments provided")
 
 workflow_fname = str(sys.argv[1])
 workflow_stage = str(sys.argv[2])
-output_path = str(sys.argv[3])
+output_path = str(sys.argv[4])
 
-output_filename = None
 var_bindings_str = None
 stage_refs_str = None
 
-# if an output filename has been provided
-if arg_count > 4:
-    output_filename = str(sys.argv[4])
-
 # if var bindings are provided
-if arg_count > 5:
-    var_bindings_str = str(sys.argv[5])
+if arg_count > 6:
+    var_bindings_str = str(sys.argv[6])
 
 # if stage references are provided
-if arg_count > 6:
-    stage_refs_str = str(sys.argv[6])
+if arg_count > 7:
+    stage_refs_str = str(sys.argv[7])
 
 # create instance of executor
-executor = GeoEDFExecutor(workflow_fname, workflow_stage, output_path, output_filename, var_bindings_str, stage_refs_str)
+executor = GeoEDFExecutor(workflow_fname, workflow_stage, output_path, var_bindings_str, stage_refs_str)
 
 # execute this workflow stage
 executor.bind_and_execute()

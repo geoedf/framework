@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 #arguments:
 #workflow_fname: workflow filepath
@@ -18,15 +18,8 @@ fi
 # if this is a connector plugin, we need to activate the environment first
 if [ "$3" == "Input" ] || [ "$3" == "Filter" ]; then
     env="$5"
-
     source activate $env
-
-    /usr/local/bin/run-workflow-stage "$@"
+    python3 /usr/local/bin/run-workflow-stage "$@"
 else # processor
-    /usr/local/bin/run-workflow-stage "$@"
-    
-    
-       
-
-
-
+    python3 /usr/local/bin/run-workflow-stage "$@"
+fi

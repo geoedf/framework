@@ -6,7 +6,10 @@
 """
 import importlib
 import json
+import yaml
+from yaml import Loader
 from functools import reduce
+from .utils.GeoEDFError import GeoEDFError
 
 class GeoEDFExecutor():
 
@@ -33,7 +36,7 @@ class GeoEDFExecutor():
         # parse workflow YAML to extract the desired workflow stage that needs to be
         # executed
         with open(workflow_fname,'r') as workflow_file:
-            workflow = yaml.load(workflow_file)
+            workflow = yaml.load(workflow_file, Loader=Loader)
             self.__workflow_dict = workflow
 
             plugin_instance_def = self.__workflow_dict
@@ -54,10 +57,7 @@ class GeoEDFExecutor():
         self.plugin_type = plugin_type
         self.plugin_instance_def = plugin_instance_def
 
-        if plugin_type == 'Filter':
-            self.output_filename = target_path
-        else: # input or processor
-            self.output_path = target_path
+        self.output_path = target_path
 
     # creates an instance of a connector plugin class
     # uses the plugin type and instance def determined during init
@@ -112,11 +112,8 @@ class GeoEDFExecutor():
         else:
             plugin_obj = self.build_connector_plugin()
 
-        # set the plugin type, output path & output filename based on plugin type
-        if self.plugin_type == 'Filter':
-            plugin_obj.set_output_filename(self.output_filename)
-        else:    
-            plugin_obj.set_output_path(self.output_path)
+        # set the plugin type, output path
+        plugin_obj.set_output_path(self.output_path)
         plugin_obj.set_plugin_type(self.plugin_type)
 
         # some simple validation to ensure bindings are available for every variable and stage referenced
@@ -127,12 +124,16 @@ class GeoEDFExecutor():
         if self.var_bindings is None:
             if len(plugin_var_refs) > 0:
                 all_vars_bound = False
+            else:
+                all_vars_bound = True
         else:
             all_vars_bound = reduce((lambda a,b: a and b), map((lambda var: var in self.var_bindings), plugin_var_refs))
 
         if self.stage_bindings is None:
             if len(plugin_stage_refs) > 0:
                 all_stages_bound = False
+            else:
+                all_stages_bound = True
         else:
             all_stages_bound = reduce((lambda a,b: a and b), map((lambda var: var in self.stage_bindings), plugin_stage_refs))
 
@@ -140,9 +141,11 @@ class GeoEDFExecutor():
             raise GeoEDFError('Not all variables and stages referenced by plugin have a binding')
 
         # bind variables and stages
-        plugin_obj.bind_vars(self.var_bindings)
-
-        plugin_obj.bind_stage_refs(self.stage_bindings)
+        if self.var_bindings is not None:
+            plugin_obj.bind_vars(self.var_bindings)
+            
+        if self.stage_bindings is not None:
+            plugin_obj.bind_stage_refs(self.stage_bindings)
 
         # execute standard method for this plugin type
         try:
