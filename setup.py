@@ -13,7 +13,7 @@ setup(name='geoedfframework',
       license='MIT',
       python_requires='~=3.7',
       packages=find_packages(),
-      scripts=['bin/run-workflow-stage'],
+      scripts=['bin/run-connector-plugin.py','bin/run-processor-plugin.py','bin/merge.py','bin/collect.py'],
       install_requires=['pyyaml','regex'],
       include_package_data=True,
       zip_safe=False)

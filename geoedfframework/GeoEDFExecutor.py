@@ -20,18 +20,24 @@ class GeoEDFExecutor():
     # in the case of filter plugins, it is a file where the filter values are written to
     # var_bindings is optional and provides bindings for one or more variables; encoded as a JSON string
     # stage_bindings is also optional and provides bindings for any stage references (file outputs of prior stages)
+    # arg_bindings is also optional and provides input file overrides for arguments that refer to local files on submit host
     # assume exactly one set of bindings is provided as input
-    def __init__(self,workflow_fname,workflow_stage,target_path,var_bindings=None,stage_bindings=None):
+    def __init__(self,workflow_fname,workflow_stage,target_path,var_bindings=None,stage_bindings=None,arg_overrides=None):
 
-        if var_bindings is not None:
+        if var_bindings != 'None':
             self.var_bindings = json.loads(var_bindings)
         else:
             self.var_bindings = None
 
-        if stage_bindings is not None:
+        if stage_bindings != 'None':
             self.stage_bindings = json.loads(stage_bindings)
         else:
             self.stage_bindings = None
+
+        if arg_overrides != 'None':
+            self.arg_overrides = json.loads(arg_overrides)
+        else:
+            self.arg_overrides = None
 
         # parse workflow YAML to extract the desired workflow stage that needs to be
         # executed
@@ -146,6 +152,10 @@ class GeoEDFExecutor():
             
         if self.stage_bindings is not None:
             plugin_obj.bind_stage_refs(self.stage_bindings)
+
+        # finally set arg overrides
+        if self.arg_overrides is not None:
+            plugin_obj.set_arg_overrides(self.arg_overrides)
 
         # execute standard method for this plugin type
         try:

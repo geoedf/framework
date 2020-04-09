@@ -133,6 +133,13 @@ class GeoEDFPlugin:
                             num_dir_modifiers -= 1
                         setattr(self,attr_key,temp_val)
 
+    # updates arg values with these overrides
+    def set_arg_overrides(self,arg_overrides_dict):
+        # loop through args needing overriding
+        for arg in arg_overrides_dict.keys():
+            override_val = arg_overrides_dict[arg]
+            setattr(self,arg,override_val)
+
     # sets the target path for this plugin's outputs
     def set_output_path(self,path):
         self.target_path = path
