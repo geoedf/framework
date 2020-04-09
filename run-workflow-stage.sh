@@ -21,7 +21,7 @@ fi
 if [ "$3" == "Input" ] || [ "$3" == "Filter" ]; then
     env="$5"
     source activate $env
-    python3 /usr/local/bin/run-connector-plugin "$@"
+    python3 /usr/local/bin/run-connector-plugin.py "$@"
 else # processor
-    python3 /usr/local/bin/run-processor-plugin "$@"
+    python3 /usr/local/bin/run-processor-plugin.py "$@"
 fi
