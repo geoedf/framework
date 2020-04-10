@@ -43,14 +43,14 @@ class GeoEDFPlugin:
     # find all variables mentioned in value
     def find_vars(self,value):
         if value is not None and isinstance(value,str):
-            return re.findall('\%\{(.+?)\}',value)
+            return re.findall('\%\{(.+)\}',value)
         else:
             return []
 
     # find all prior stages referenced in value
     def find_stage_refs(self,value):
         if value is not None and isinstance(value,str):
-            return re.findall('\$([0-9]+?)',value)
+            return re.findall('\$([0-9]+)',value)
         else:
             return []
 

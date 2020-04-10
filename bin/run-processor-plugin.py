@@ -15,15 +15,14 @@ arg_count = len(sys.argv)
 # extract command line arguments
 
 # make sure the required arguments have been provided
-if arg_count < 8:
+if arg_count < 6:
     raise Exception("Incorrect number of arguments provided")
 
 workflow_fname = str(sys.argv[1])
 workflow_stage = '$%s' % str(sys.argv[2])
 output_path = str(sys.argv[4])
-var_bindings_str = str(sys.argv[6])
-stage_refs_str = str(sys.argv[7])
-args_overridden_str = str(sys.argv[8])
+stage_refs_str = str(sys.argv[5])
+args_overridden_str = str(sys.argv[6])
 
 # arg overrides are meant to provide input file paths corresponding to files
 # on the submit host. Since these file paths are only determined during
@@ -33,7 +32,7 @@ args_overridden_str = str(sys.argv[8])
 # need to construct the JSON here before invoking the executor
 
 # parse comma separated args_overridden_str
-if overridden_args != 'None':
+if args_overridden_str != 'None':
     overridden_args = args_overridden_str.split(',')
 
     # validate
@@ -49,8 +48,8 @@ if overridden_args != 'None':
 else:
     arg_overrides_str = 'None'
 
-# create instance of executor
-executor = GeoEDFExecutor(workflow_fname, workflow_stage, output_path, var_bindings_str, stage_refs_str, arg_overrides_str)
+# create instance of executor, hardcoded var bindings since they cannot exist for processors
+executor = GeoEDFExecutor(workflow_fname, workflow_stage, output_path, 'None', stage_refs_str, arg_overrides_str)
 
 # execute this workflow stage
 executor.bind_and_execute()

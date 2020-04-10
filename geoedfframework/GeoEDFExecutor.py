@@ -22,7 +22,7 @@ class GeoEDFExecutor():
     # stage_bindings is also optional and provides bindings for any stage references (file outputs of prior stages)
     # arg_bindings is also optional and provides input file overrides for arguments that refer to local files on submit host
     # assume exactly one set of bindings is provided as input
-    def __init__(self,workflow_fname,workflow_stage,target_path,var_bindings=None,stage_bindings=None,arg_overrides=None):
+    def __init__(self,workflow_fname,workflow_stage,target_path,var_bindings,stage_bindings,arg_overrides):
 
         if var_bindings != 'None':
             self.var_bindings = json.loads(var_bindings)

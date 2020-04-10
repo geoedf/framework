@@ -33,7 +33,7 @@ args_overridden_str = str(sys.argv[8])
 # need to construct the JSON here before invoking the executor
 
 # parse comma separated args_overridden_str
-if overridden_args != 'None':
+if arg_overridden_str != 'None':
     overridden_args = args_overridden_str.split(',')
 
     # validate

@@ -6,14 +6,20 @@
 #plugin_type: type of plugin to be executed; helps with validation of inputs
 #target_path: either path where outputs are to be stored or filepath for filter outputs
 #plugin_name; this is used to determine the environment to activate (only for connectors)
+
+#### the next three arguments need to be specified; use explicit 'none' in case no value
 #var_bindings: JSON string containing one set of variable bindings (only for connectors)
 #stage_bindings: JSON string containing one set of bindings for stage references
 #overridden_args: comma separated list of args that need to be overridden
+####
+
 #optional list of file paths to input files corresponding to overridden_args
 
 #simple validation on the minimum number of arguments required
-if [ "$#" -lt 4 ]; then
-   echo "At least four arguments need to be provided"
+#this script is invoked for both connectors and processors
+#further validation needs to be performed in the respective scripts
+if [ "$#" -lt 6 ]; then
+   echo "At least six arguments need to be provided"
    exit 1
 fi
 
