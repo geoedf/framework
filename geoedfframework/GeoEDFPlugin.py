@@ -159,4 +159,5 @@ class GeoEDFPlugin:
         while(value.startswith('dir(')):
             count += 1
             value = value[4:]
+        return count
         
