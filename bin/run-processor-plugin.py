@@ -36,12 +36,12 @@ if args_overridden_str != 'None':
     overridden_args = args_overridden_str.split(',')
 
     # validate
-    if len(overridden_args) != (arg_count - 6):
+    if len(overridden_args) != (arg_count - 7):
         raise Exception('overridden args and override values do not match')
 
     # create json str
     overrides = dict()
-    for indx in range(0,arg_count - 6):
+    for indx in range(0,arg_count - 7):
         overrides[overridden_args[indx]] = str(sys.argv[7 + indx])
 
     arg_overrides_str = json.dumps(overrides)
