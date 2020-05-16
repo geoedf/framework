@@ -133,6 +133,12 @@ class GeoEDFPlugin:
                             num_dir_modifiers -= 1
                         setattr(self,attr_key,temp_val)
 
+    # set values for args left blank (sensitive args)
+    def bind_sensitive_args(self,sensitive_arg_bindings_dict):
+        for arg in sensitive_arg_bindings_dict.keys():
+            val = sensitive_arg_bindings_dict[arg]
+            setattr(self,arg,val)
+                            
     # updates arg values with these overrides
     def set_arg_overrides(self,arg_overrides_dict):
         # loop through args needing overriding

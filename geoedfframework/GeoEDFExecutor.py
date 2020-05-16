@@ -20,9 +20,10 @@ class GeoEDFExecutor():
     # in the case of filter plugins, it is a file where the filter values are written to
     # var_bindings is optional and provides bindings for one or more variables; encoded as a JSON string
     # stage_bindings is also optional and provides bindings for any stage references (file outputs of prior stages)
-    # arg_bindings is also optional and provides input file overrides for arguments that refer to local files on submit host
+    # sensitive_arg_bindings provides bindings for args that were left empty and required user input
+    # arg_overrides is also optional and provides input file overrides for arguments that refer to local files on submit host
     # assume exactly one set of bindings is provided as input
-    def __init__(self,workflow_fname,workflow_stage,target_path,var_bindings,stage_bindings,arg_overrides):
+    def __init__(self,workflow_fname,workflow_stage,target_path,var_bindings,stage_bindings,sensitive_arg_bindings,arg_overrides):
 
         if var_bindings != 'None':
             self.var_bindings = json.loads(var_bindings)
@@ -33,6 +34,11 @@ class GeoEDFExecutor():
             self.stage_bindings = json.loads(stage_bindings)
         else:
             self.stage_bindings = None
+
+        if sensitive_arg_bindings != 'None':
+            self.sensitive_arg_bindings = json.loads(sensitive_arg_bindings)
+        else:
+            self.sensitive_arg_bindings = None
 
         if arg_overrides != 'None':
             self.arg_overrides = json.loads(arg_overrides)
@@ -152,6 +158,10 @@ class GeoEDFExecutor():
             
         if self.stage_bindings is not None:
             plugin_obj.bind_stage_refs(self.stage_bindings)
+
+        # bind sensitive args
+        if self.sensitive_arg_bindings is not None:
+            plugin_obj.bind_sensitive_args(self.sensitive_arg_bindings)
 
         # finally set arg overrides
         if self.arg_overrides is not None:

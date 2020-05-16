@@ -8,14 +8,22 @@
 from geoedfframework.GeoEDFExecutor import GeoEDFExecutor
 
 import sys
+import os
 import json
+import base64
+
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import serialization
+
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.asymmetric import padding
 
 arg_count = len(sys.argv)
 
 # extract command line arguments
 
 # make sure the required arguments have been provided
-if arg_count < 8:
+if arg_count < 9:
     raise Exception("Incorrect number of arguments provided")
 
 workflow_fname = str(sys.argv[1])
@@ -23,7 +31,8 @@ workflow_stage = '$%s' % str(sys.argv[2])
 output_path = str(sys.argv[4])
 var_bindings_str = str(sys.argv[6])
 stage_refs_str = str(sys.argv[7])
-args_overridden_str = str(sys.argv[8])
+encrypted_args_str = str(sys.argv[8])
+args_overridden_str = str(sys.argv[9])
 
 # arg overrides are meant to provide input file paths corresponding to files
 # on the submit host. Since these file paths are only determined during
@@ -33,24 +42,53 @@ args_overridden_str = str(sys.argv[8])
 # need to construct the JSON here before invoking the executor
 
 # parse comma separated args_overridden_str
-if arg_overridden_str != 'None':
+if args_overridden_str != 'None':
     overridden_args = args_overridden_str.split(',')
 
     # validate
-    if len(overridden_args) != (arg_count - 9):
+    if len(overridden_args) != (arg_count - 10):
         raise Exception('overridden args and override values do not match')
 
     # create json str
     overrides = dict()
-    for indx in range(0,arg_count - 9):
-        overrides[overridden_args[indx]] = str(sys.argv[9 + indx])
+    for indx in range(0,arg_count - 10):
+        overrides[overridden_args[indx]] = str(sys.argv[10 + indx])
 
     arg_overrides_str = json.dumps(overrides)
 else:
     arg_overrides_str = 'None'
 
+# decrypt the encrypted args and create a new dictionary
+if encrypted_args_str != 'None':
+    encrypted_args = json.loads(encrypted_args_str)
+    decrypted_args = dict()
+    # get the top level job directory, private key is stored here
+    job_dir = os.path.dirname(output_path)
+    private_key_filename = '%s/private.pem' % job_dir
+    with open(private_key_filename,'rb') as key_file:
+        private_key = serialization.load_pem_private_key(
+                        key_file.read(),
+                        password=None,
+                        backend=default_backend())
+
+        for arg in encrypted_args:
+
+            # first decode the base64 encoding
+            encrypted_val = base64.decodestring(bytes(encrypted_args[arg],'ascii'))
+            
+            decrypted_val = private_key.decrypt(
+                encrypted_val,
+                padding.OAEP(
+                    mgf=padding.MGF1(algorithm=hashes.SHA256()),
+                    algorithm=hashes.SHA256(),
+                    label=None))
+            decrypted_args[arg] = decrypted_val.decode('utf-8')
+    decrypted_args_str = json.dumps(decrypted_args)
+else:
+    decrypted_args_str = 'None'
+            
 # create instance of executor
-executor = GeoEDFExecutor(workflow_fname, workflow_stage, output_path, var_bindings_str, stage_refs_str, arg_overrides_str)
+executor = GeoEDFExecutor(workflow_fname, workflow_stage, output_path, var_bindings_str, stage_refs_str, decrypted_args_str, arg_overrides_str)
 
 # execute this workflow stage
 executor.bind_and_execute()
