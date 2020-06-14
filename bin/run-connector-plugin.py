@@ -23,16 +23,16 @@ arg_count = len(sys.argv)
 # extract command line arguments
 
 # make sure the required arguments have been provided
-if arg_count < 9:
+if arg_count < 8:
     raise Exception("Incorrect number of arguments provided")
 
 workflow_fname = str(sys.argv[1])
 workflow_stage = '$%s' % str(sys.argv[2])
 output_path = str(sys.argv[4])
-var_bindings_str = str(sys.argv[6])
-stage_refs_str = str(sys.argv[7])
-encrypted_args_str = str(sys.argv[8])
-args_overridden_str = str(sys.argv[9])
+var_bindings_str = str(sys.argv[5])
+stage_refs_str = str(sys.argv[6])
+encrypted_args_str = str(sys.argv[7])
+args_overridden_str = str(sys.argv[8])
 
 # arg overrides are meant to provide input file paths corresponding to files
 # on the submit host. Since these file paths are only determined during
@@ -46,13 +46,13 @@ if args_overridden_str != 'None':
     overridden_args = args_overridden_str.split(',')
 
     # validate
-    if len(overridden_args) != (arg_count - 10):
+    if len(overridden_args) != (arg_count - 9):
         raise Exception('overridden args and override values do not match')
 
     # create json str
     overrides = dict()
-    for indx in range(0,arg_count - 10):
-        overrides[overridden_args[indx]] = str(sys.argv[10 + indx])
+    for indx in range(0,arg_count - 9):
+        overrides[overridden_args[indx]] = str(sys.argv[9 + indx])
 
     arg_overrides_str = json.dumps(overrides)
 else:

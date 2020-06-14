@@ -5,7 +5,6 @@
 #workflow_stage: stage to be executed; encoded as : separated list (for connectors)
 #plugin_type: type of plugin to be executed; helps with validation of inputs
 #target_path: either path where outputs are to be stored or filepath for filter outputs
-#plugin_name; this is used to determine the environment to activate (only for connectors)
 
 #### the next three arguments need to be specified; use explicit 'none' in case no value
 #var_bindings: JSON string containing one set of variable bindings (only for connectors)
@@ -23,10 +22,8 @@ if [ "$#" -lt 6 ]; then
    exit 1
 fi
 
-# if this is a connector plugin, we need to activate the environment first
+# if this is a connector plugin
 if [ "$3" == "Input" ] || [ "$3" == "Filter" ]; then
-    env="$5"
-    source activate $env
     python3 /usr/local/bin/run-connector-plugin.py "$@"
 else # processor
     python3 /usr/local/bin/run-processor-plugin.py "$@"
