@@ -5,7 +5,7 @@ def readme():
         return f.read()
 
 setup(name='geoedfframework',
-      version='0.5.0',
+      version='0.6.0',
       description='GeoEDF Connector Processor Framework',
       url='https://geoedf.github.io/geoedf/',
       author='Rajesh Kalyanam',
