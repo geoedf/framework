@@ -7,7 +7,7 @@ def readme():
 setup(name='geoedfframework',
       version='0.6.0',
       description='GeoEDF Connector Processor Framework',
-      url='https://geoedf.github.io/geoedf/',
+      url='https://geoedf.readthedocs.io',
       author='Rajesh Kalyanam',
       author_email='rkalyanapurdue@gmail.com',
       license='MIT',
