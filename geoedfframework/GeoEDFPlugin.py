@@ -43,7 +43,7 @@ class GeoEDFPlugin:
     # find all variables mentioned in value
     def find_vars(self,value):
         if value is not None and isinstance(value,str):
-            return re.findall('\%\{(.+)\}',value)
+            return re.findall('\%\{(.+?)\}',value)
         else:
             return []
 
